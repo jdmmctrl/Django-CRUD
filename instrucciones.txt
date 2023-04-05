@@ -1,0 +1,8 @@
+
+* pip install virtualenv
+* python -m virtualenv venv
+* venv\Scripts\activate
+* pip install django
+* django-admin startproject DjangoCrud .
+* python manage.py runserver
+* python manage.py startapp tasks
