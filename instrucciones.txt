@@ -6,3 +6,4 @@
 * django-admin startproject DjangoCrud .
 * python manage.py runserver
 * python manage.py startapp tasks
+* python manage.py migrate
