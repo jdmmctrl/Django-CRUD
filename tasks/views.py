@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
 from django.db import IntegrityError
-from .forms import TaskForm
 from .models import Task
+from django.utils import timezone
+
+from .forms import TaskForm
 
 # Create your views here.
 
@@ -23,7 +25,8 @@ def signup(request):
         if request.POST['password1'] == request.POST['password2']:
             try:
                 user = User.objects.create_user(
-                    username=request.POST['username'], password=request.POST['password1'])
+                    username=request.POST['username'],
+                    password=request.POST['password1'])
                 user.save()
                 login(request, user)
                 return redirect('tasks')
@@ -62,6 +65,42 @@ def create_task(request):
                 'form': TaskForm,
                 'error': 'Something went wrong'
             })
+
+
+def task_detail(request, task_id):
+    if request.method == 'GET':
+        task = get_object_or_404(Task, pk=task_id)
+        form = TaskForm(instance=task)
+        return render(request, 'task_detail.html', {
+            'task': task,
+            'form': form})
+    else:
+        try:
+            task = get_object_or_404(Task, pk=task_id, user=request.user)
+            form = TaskForm(request.POST, instance=task)
+            form.save()
+            return redirect('tasks')
+        except ValueError:
+            return render(request, 'task_detail.html', {
+                'task': task,
+                'form': form,
+                'error': 'Something went wrong'
+            })
+
+
+def complete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST':
+        task.datecompleted = timezone.now()
+        task.save()
+        return redirect('tasks')
+
+
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST':
+        task.delete()
+        return redirect('tasks')
 
 
 def signout(request):

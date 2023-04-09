@@ -2,6 +2,7 @@
 * pip install virtualenv
 * python -m virtualenv venv
 * venv\Scripts\activate
+* deactivate
 * pip install django
 * django-admin startproject DjangoCrud .
 * python manage.py createsuperuser
